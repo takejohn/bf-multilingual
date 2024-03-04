@@ -5,17 +5,14 @@
 #include <buffer.h>
 
 struct interpreter {
+    const char *filename;
     Buffer *program;
+    size_t pc;
 };
 
-Interpreter *interpreter_new(char *filename) {
+Interpreter *interpreter_new(const char *filename) {
     Buffer *const program = buffer_new(0);
-    FILE *const stream = fopen(filename, "r");
-    if (stream == NULL) {
-        return NULL;
-    }
-    const bool load_result = buffer_load_file(program, stream);
-    fclose(stream);
+    const bool load_result = buffer_load_file_from_name(program, filename);
     if (!load_result) {
         return NULL;
     }
@@ -23,6 +20,7 @@ Interpreter *interpreter_new(char *filename) {
     if (interpreter == NULL) {
         return NULL;
     }
+    interpreter->filename = filename;
     interpreter->program = program;
     return interpreter;
 }

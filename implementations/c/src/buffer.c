@@ -83,6 +83,16 @@ bool buffer_load_file(Buffer *restrict buf, FILE *restrict stream) {
     } while (true);
 }
 
+bool buffer_load_file_from_name(Buffer *restrict buf, const char *restrict filename) {
+    FILE *const stream = fopen(filename, "r");
+    if (stream == NULL) {
+        return false;
+    }
+    const bool load_result = buffer_load_file(buf, stream);
+    fclose(stream);
+    return load_result;
+}
+
 void buffer_delete(Buffer *buf) {
     if (buf == NULL) {
         return;
