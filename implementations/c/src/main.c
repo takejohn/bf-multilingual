@@ -16,5 +16,8 @@ int main(int argc, char **argv) {
     do {
         step_result = interpreter_step(interpreter);
     } while (step_result == STEP_SUCCESS);
+    if (step_result != STEP_END) {
+        printf("Runtime error: %d\n", step_result);
+    }
     return 0;
 }
