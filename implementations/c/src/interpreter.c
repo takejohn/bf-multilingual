@@ -38,36 +38,54 @@ Interpreter *interpreter_new(const char *filename) {
     return NULL;
 }
 
+static StepResult step_plus(Interpreter *interpreter) {
+    Buffer *const memory = interpreter->memory;
+    const size_t ptr = interpreter->ptr;
+    const int value = buffer_get(memory, ptr);
+    buffer_set(memory, ptr, value + 1);
+    interpreter->pc++;
+    return STEP_SUCCESS;
+}
+
+static StepResult step_minus(Interpreter *interpreter) {
+    Buffer *const memory = interpreter->memory;
+    const size_t ptr = interpreter->ptr;
+    const int value = buffer_get(memory, ptr);
+    buffer_set(memory, ptr, value - 1);
+    interpreter->pc++;
+    return STEP_SUCCESS;
+}
+
+static StepResult step_write(Interpreter *interpreter) {
+    Buffer *const memory = interpreter->memory;
+    const size_t ptr = interpreter->ptr;
+    putchar(buffer_get(memory, ptr));
+    interpreter->pc++;
+    return STEP_SUCCESS;
+}
+
+static StepResult step_read(Interpreter *interpreter) {
+    Buffer *const memory = interpreter->memory;
+    const size_t ptr = interpreter->ptr;
+    buffer_set(memory, ptr, getchar());
+    interpreter->pc++;
+    return STEP_SUCCESS;
+}
+
 StepResult interpreter_step(Interpreter *interpreter) {
     const int inst = buffer_get(interpreter->program, interpreter->pc);
     if (inst < 0) {
         return STEP_END;
     }
-    Buffer *const memory = interpreter->memory;
-    const size_t ptr = interpreter->ptr;
     switch (inst) {
-        case '+': {
-            const int value = buffer_get(memory, ptr);
-            buffer_set(memory, ptr, value + 1);
-            interpreter->pc++;
-            return STEP_SUCCESS;
-        }
-        case '-': {
-            const int value = buffer_get(memory, ptr);
-            buffer_set(memory, ptr, value - 1);
-            interpreter->pc++;
-            return STEP_SUCCESS;
-        }
-        case '.': {
-            putchar(buffer_get(memory, ptr));
-            interpreter->pc++;
-            return STEP_SUCCESS;
-        }
-        case ',': {
-            buffer_set(memory, ptr, getchar());
-            interpreter->pc++;
-            return STEP_SUCCESS;
-        }
+        case '+': 
+            return step_plus(interpreter);
+        case '-': 
+            return step_minus(interpreter);
+        case '.': 
+            return step_write(interpreter);
+        case ',': 
+            return step_read(interpreter);
         default: {
             interpreter->pc++;
             return STEP_SUCCESS;
