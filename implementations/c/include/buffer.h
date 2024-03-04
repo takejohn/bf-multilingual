@@ -21,6 +21,10 @@ size_t buffer_size(Buffer *buf);
 
 int buffer_get(Buffer *buf, size_t index);
 
+bool buffer_set(Buffer *buf, size_t index, int value);
+
+bool buffer_push(Buffer *buf, int value);
+
 bool buffer_load_file(Buffer *restrict buf, FILE *restrict file);
 
 bool buffer_load_file_from_name(Buffer *restrict buf, const char *restrict filename);

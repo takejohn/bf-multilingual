@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <stdlib.h>
 #include <buffer.h>
 
@@ -30,10 +31,18 @@ size_t buffer_size(Buffer *buf) {
 }
 
 int buffer_get(Buffer *buf, size_t index) {
-    if (index > buf->size) {
+    if (index >= buf->size) {
         return -1;
     }
     return buf->pointer[index];
+}
+
+bool buffer_set(Buffer *buf, size_t index, int value) {
+    if (index > buf->size || value < 0 || value > UCHAR_MAX) {
+        return false;
+    }
+    buf->pointer[index] = (unsigned char)value;
+    return true;
 }
 
 static size_t extend_cap(Buffer *buf) {
@@ -54,6 +63,22 @@ static bool buffer_extend(Buffer *buf) {
     }
     buf->pointer = new_pointer;
     buf->cap = new_cap;
+    return true;
+}
+
+bool buffer_push(Buffer *buf, int value) {
+    if (value < 0 || value > UCHAR_MAX) {
+        return false;
+    }
+    const size_t index = buf->size;
+    if (index >= buf->cap) {
+        const bool success = buffer_extend(buf);
+        if (!success) {
+            return false;
+        }
+    }
+    buf->pointer[index] = (unsigned char)value;
+    buf->size = index + 1;
     return true;
 }
 

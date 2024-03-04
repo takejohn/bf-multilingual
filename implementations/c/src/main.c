@@ -12,5 +12,9 @@ int main(int argc, char **argv) {
         fputs("Could not load the source file\n", stderr);
         return 2;
     }
+    StepResult step_result;
+    do {
+        step_result = interpreter_step(interpreter);
+    } while (step_result == STEP_SUCCESS);
     return 0;
 }
