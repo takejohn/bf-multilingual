@@ -6,7 +6,8 @@ typedef struct interpreter Interpreter;
 typedef enum step_result {
     STEP_SUCCESS,
     STEP_END,
-    STEP_ERROR
+    STEP_OUT_OF_MEMORY,
+    STEP_OUT_OF_BOUND,
 } StepResult;
 
 Interpreter *interpreter_new(const char *filename);

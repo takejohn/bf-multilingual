@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -72,6 +73,32 @@ static StepResult step_read(Interpreter *interpreter) {
     return STEP_SUCCESS;
 }
 
+static StepResult step_right(Interpreter *interpreter) {
+    Buffer *const memory = interpreter->memory;
+    const size_t ptr = interpreter->ptr + 1;
+    const size_t memory_size = buffer_size(memory);
+    assert(ptr <= memory_size);
+    if (ptr == memory_size) {
+        const bool success = buffer_push(memory, 0);
+        if (!success) {
+            return STEP_OUT_OF_MEMORY;
+        }
+    }
+    interpreter->ptr = ptr;
+    interpreter->pc++;
+    return STEP_SUCCESS;
+}
+
+static StepResult step_left(Interpreter *interpreter) {
+    const size_t ptr = interpreter->ptr - 1;
+    if (ptr < 0) {
+        return STEP_OUT_OF_BOUND;
+    }
+    interpreter->ptr = ptr;
+    interpreter->pc++;
+    return STEP_SUCCESS;
+}
+
 StepResult interpreter_step(Interpreter *interpreter) {
     const int inst = buffer_get(interpreter->program, interpreter->pc);
     if (inst < 0) {
@@ -86,6 +113,10 @@ StepResult interpreter_step(Interpreter *interpreter) {
             return step_write(interpreter);
         case ',': 
             return step_read(interpreter);
+        case '>':
+            return step_right(interpreter);
+        case '<':
+            return step_left(interpreter);
         default: {
             interpreter->pc++;
             return STEP_SUCCESS;
